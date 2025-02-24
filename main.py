@@ -3,7 +3,7 @@ import argparse
 from copy import deepcopy
 from matplotlib import pyplot as plt
 import numpy as np
-
+import logging
 import torch
 import torch.nn.functional as F
 from torch import nn, optim
@@ -338,7 +338,7 @@ def export_plot(model):
 
     plt.legend()
     plt.savefig(f'{model.name}.png')
-    print(f'model saved to \'{model.name}.png\'')
+    logging.info(f'model saved to \'{model.name}.png\'')
 
 
 def train(model, train_set):
@@ -348,7 +348,7 @@ def train(model, train_set):
     for _, (x, y) in enumerate(train_set):
         model.optimizer.zero_grad()
         output = model(x)
-        loss = F.nll_loss(output, y.T[0])
+        loss = F.nll_loss(output, y)
         loss.backward()
         model.optimizer.step()
         train_loss += float(loss.data)
@@ -366,7 +366,7 @@ def validate(model, validate_set, is_test=False):
     with torch.no_grad():
         for _, (x, y) in enumerate(validate_set):
             output = model(x)
-            loss = F.nll_loss(output, y.T[0])
+            loss = F.nll_loss(output, y.T)
             validate_loss += float(loss.data)
             pred = output.max(1, keepdim=True)[1]
             correct += pred.eq(y.view_as(pred)).sum().item()
@@ -392,38 +392,37 @@ def running_epochs(model, epochs, is_best):
         if i % 7 == 0:
             model.optimizer.param_groups[0]['lr'] *= 0.2
 
-        print(f'====== {model.name} EPOCH #{i + 1} ============')
+        logging.info(f'====== {model.name} EPOCH #{i + 1} ============')
 
         train(model, train_loader)
-        print(f'[train accuracy:]\t\t\t{"{:.2f}".format(model.train_accuracies[-1])}%')
-        print(f'[train loss:]\t\t\t\t{"{:.2f}".format(model.train_loss[-1])}')
+        logging.info(f'[train accuracy:]\t\t\t{"{:.2f}".format(model.train_accuracies[-1])}%')
+        logging.info(f'[train loss:]\t\t\t\t{"{:.2f}".format(model.train_loss[-1])}')
 
         validate(model, validate_loader)
-        print(f'[validate accuracy:]\t\t{"{:.2f}".format(model.validate_accuracies[-1])}%')
-        print(f'[validate loss:]\t\t\t{"{:.2f}".format(model.validate_loss[-1])}')
+        logging.info(f'[validate accuracy:]\t\t{"{:.2f}".format(model.validate_accuracies[-1])}%')
+        logging.info(f'[validate loss:]\t\t\t{"{:.2f}".format(model.validate_loss[-1])}')
 
         if best_val_acc < model.validate_accuracies[-1]:
             best_val_acc = model.validate_accuracies[-1]
             best_acc_model = deepcopy(model)
             if best_val_acc > 90:
                 model.optimizer.param_groups[0]['lr'] = 0.0001
-            print('---- model saved! ----')
+            logging.info('---- model saved! ----')
 
         validate(model, test_loader, is_test=True)
-        print(f'[test accuracy:]\t\t\t{"{:.2f}".format(model.test_accuracies[-1])}%')
-        print(f'[test loss:]\t\t\t\t{"{:.2f}".format(model.test_loss[-1])}')
+        logging.info(f'[test accuracy:]\t\t\t{"{:.2f}".format(model.test_accuracies[-1])}%')
+        logging.info(f'[test loss:]\t\t\t\t{"{:.2f}".format(model.test_loss[-1])}')
 
     return best_acc_model
 
 
 def load_original_mnist_fashion(batch_size, validate_percentage):
-    print("loading files..")
+    logging.info("loading files..")
     transforms = torchvision.transforms.Compose(
         [torchvision.transforms.ToTensor(), torchvision.transforms.Normalize((0.1307,), (0.3081,))])
 
     dataset = torchvision.datasets.FashionMNIST(root='./data', train=True, transform=transforms, download=True)
-    train_set, val_set = torch.utils.data.random_split(dataset, [len(dataset.data) * (1 - validate_percentage / 100),
-                                                                 len(dataset.data) * (validate_percentage / 100)])
+    train_set, val_set = torch.utils.data.random_split(dataset=dataset, lengths=[1 - validate_percentage / 100,validate_percentage / 100])
 
     train_loader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True)
 
@@ -440,20 +439,19 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     # -train_x train_x -train_y train_y -test_x test_x -test_y test_y -e epochs...
-    parser.add_argument("-e", dest="epochs", default="30", help="Epochs")
-    parser.add_argument("-batch_size", dest="batch_size", default="64", help="Batch Size")
-    parser.add_argument("-validate", dest="validate_percentage", default="10", help="Validate Percentage")
-    parser.add_argument("-model", dest="model",
-                        help="The Model to run (between A to G)")
+    parser.add_argument("-e", dest="epochs", default="30",type=int, help="Epochs")
+    parser.add_argument("-batch_size", dest="batch_size", default="64",type=int, help="Batch Size")
+    parser.add_argument("-validate", dest="validate_percentage", default="10",type=int, help="Validate Percentage")
+    parser.add_argument("--model", dest="model",help="The Model to run (between A to G), add ml after for middle linear")
 
     args = parser.parse_args()
-    print(args.epochs)
-    print(args.batch_size)
-    print(args.validate_percentage)
-    print(args.model)
+    logging.basicConfig(filename=f"log/{args.filename}.out", encoding='utf-8', level=logging.INFO)
+    logging.info(f"{args.epochs,type(args.epochs)}")
+    logging.info(f"{args.batch_size,type(args.batch_size)}")
+    logging.info(f"{args.validate_percentage,type(args.validate_percentage)}")
+    logging.info(f"{args.model,type(args.model)}")
 
-    train_loader, validate_loader, test_loader = load_original_mnist_fashion(int(args.batch_size),
-                                                                                int(args.validate_percentage))
+    train_loader, validate_loader, test_loader = load_original_mnist_fashion(args.batch_size,args.validate_percentage)
     is_best = False
     if args.model == 'A':
         model = ModelA(image_size=28 * 28, lr=0.12)
@@ -487,13 +485,13 @@ if __name__ == "__main__":
     else:
         raise ValueError("need to specify model")
 
-    best_model = running_epochs(model, int(args.epochs), is_best=is_best)
-    print("========================================")
-    print("learn finished.", end=' ')
+    best_model = running_epochs(model, args.epochs, is_best=is_best)
+    logging.info("========================================")
+    logging.info("learn finished.")
 
-    print("exporting plot..")
+    logging.info("exporting plot..")
 
-    print('\nfinal accuracy:')
+    logging.info('\nfinal accuracy:')
     validate(best_model, test_loader, is_test=True)
-    print(f'[test accuracy:]\t\t\t{"{:.2f}".format(best_model.test_accuracies[-1])}%')
-    print(f'[test loss:]\t\t\t\t{"{:.2f}".format(best_model.test_loss[-1])}')
+    logging.info(f'[test accuracy:]\t\t\t{"{:.2f}".format(best_model.test_accuracies[-1])}%')
+    logging.info(f'[test loss:]\t\t\t\t{"{:.2f}".format(best_model.test_loss[-1])}')
