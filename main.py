@@ -47,11 +47,43 @@ class ModelA(BaseModel):
         return F.log_softmax(x, dim=1)
 
 
+class ModelA_middlelinear(BaseModel):
+    def __init__(self, image_size, lr):
+        super().__init__(image_size, lr)
+
+        self.name = 'Model A middle linear'
+
+        self.fc0 = nn.Linear(image_size, 100)
+        self.fc1 = nn.Linear(100, 100)
+        self.fc2 = nn.Linear(100, 100)
+        self.fc3 = nn.Linear(100, 50)
+        self.fc4 = nn.Linear(50, 10)
+
+        self.optimizer = optim.SGD(self.parameters(), lr=self.lr)
+
+    def forward(self, x):
+        x = x.view(-1, self.image_size)
+        x = F.relu(self.fc0(x))
+        x = self.fc1(x)
+        x = self.fc2(x)
+        x = F.relu(self.fc3(x))
+        x = self.fc4(x)
+        return F.log_softmax(x, dim=1)
+
+
 class ModelB(ModelA):
     def __init__(self, image_size, lr):
         super().__init__(image_size, lr)
 
         self.name = 'Model B'
+        self.optimizer = optim.Adam(self.parameters(), lr=self.lr)
+
+
+class ModelB_middlelinear(ModelA_middlelinear):
+    def __init__(self, image_size, lr):
+        super().__init__(image_size, lr)
+
+        self.name = 'Model B middle linear'
         self.optimizer = optim.Adam(self.parameters(), lr=self.lr)
 
 
@@ -71,6 +103,23 @@ class ModelC(ModelB):
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
 
+class ModelC_middlelinear(ModelB_middlelinear):
+    def __init__(self, image_size, lr, dropout=0.2):
+        super().__init__(image_size, lr)
+
+        self.name = 'Model C middle linear'
+
+        self.dropout = nn.Dropout(p=dropout)
+
+    def forward(self, x):
+        x = x.view(-1, self.image_size)
+        x = F.relu(self.fc0(x))
+        x = self.fc1(x)
+        x = self.fc2(x)
+        x = F.relu(self.fc3(x))
+        x = self.dropout(x)
+        x = self.fc4(x)
+        return F.log_softmax(x, dim=1)
 
 class ModelD(ModelB):
     def __init__(self, image_size, lr):
@@ -93,6 +142,33 @@ class ModelD(ModelB):
         x = F.relu(x)
 
         x = self.fc2(x)
+        return F.log_softmax(x, dim=1)
+
+
+class ModelD_middlelinear(ModelB_middlelinear):
+    def __init__(self, image_size, lr):
+        super().__init__(image_size, lr)
+
+        self.name = 'Model D middle linear'
+
+        self.batch_norm_1 = nn.BatchNorm1d(100)
+        self.batch_norm_2 = nn.BatchNorm1d(50)
+
+    def forward(self, x):
+        x = x.view(-1, self.image_size)
+
+        x = self.fc0(x)
+        x = self.batch_norm_1(x)
+        x = F.relu(x)
+
+        x = self.fc1(x)
+        x = self.fc2(x)
+
+        x = self.fc3(x)
+        x = self.batch_norm_2(x)
+        x = F.relu(x)
+
+        x = self.fc4(x)
         return F.log_softmax(x, dim=1)
 
 
@@ -121,11 +197,45 @@ class ModelE(BaseModel):
         return F.log_softmax(x, dim=1)
 
 
+class ModelE_middlelinear(BaseModel):
+    def __init__(self, image_size, lr):
+        super().__init__(image_size, lr)
+
+        self.name = 'Model E middle linear'
+
+        self.fc0 = nn.Linear(image_size, 128)
+        self.fc1 = nn.Linear(128, 64)
+        self.fc2 = nn.Linear(64, 10)
+        self.fc3 = nn.Linear(10, 10)
+        self.fc4 = nn.Linear(10, 10)
+
+        self.optimizer = optim.SGD(self.parameters(), lr=self.lr)
+        self.activation_func = F.relu
+
+    def forward(self, x):
+        x = x.view(-1, self.image_size)
+        x = self.activation_func(self.fc0(x))
+        x = self.fc1(x)
+        x = self.fc2(x)
+        x = self.activation_func(self.fc3(x))
+        x = self.fc4(x)
+        return F.log_softmax(x, dim=1)
+
 class ModelF(ModelE):
     def __init__(self, image_size, lr):
         super().__init__(image_size, lr)
 
         self.name = 'Model F'
+
+        self.optimizer = optim.Adam(self.parameters(), lr=self.lr)
+        self.activation_func = torch.sigmoid
+
+
+class ModelF_middlelinear(ModelE_middlelinear):
+    def __init__(self, image_size, lr):
+        super().__init__(image_size, lr)
+
+        self.name = 'Model F middle linear'
 
         self.optimizer = optim.Adam(self.parameters(), lr=self.lr)
         self.activation_func = torch.sigmoid
@@ -163,6 +273,45 @@ class BestModel(BaseModel):
         x = self.dropout(x)
 
         x = F.leaky_relu(self.batch_norm_3(self.fc2(x)))
+
+        x = F.leaky_relu(self.batch_norm_4(self.fc3(x)))
+        x = self.dropout(x)
+
+        x = self.fc4(x)
+        return F.log_softmax(x, dim=1)
+    
+class BestModel_middlelinear(BaseModel):
+    def __init__(self, image_size, lr):
+        super().__init__(image_size, lr=lr)
+
+        self.name = 'Best Model'
+
+        self.batch_norm_0 = nn.BatchNorm1d(image_size)
+        self.batch_norm_1 = nn.BatchNorm1d(512)
+        self.batch_norm_2 = nn.BatchNorm1d(256)
+        self.batch_norm_3 = nn.BatchNorm1d(128)
+        self.batch_norm_4 = nn.BatchNorm1d(64)
+
+        self.fc0 = nn.Linear(image_size, 512)
+        self.fc1 = nn.Linear(512, 256)
+        self.fc2 = nn.Linear(256, 128)
+        self.fc3 = nn.Linear(128, 64)
+        self.fc4 = nn.Linear(64, 10)
+
+        self.dropout = nn.Dropout(p=0.1)
+
+        self.optimizer = optim.Adam(self.parameters(), lr=lr)
+
+    def forward(self, x):
+        x = x.view(-1, self.image_size)
+        x = self.dropout(x)
+
+        x = F.leaky_relu(self.batch_norm_1(self.fc0(x)))
+
+        x = self.batch_norm_2(self.fc1(x))
+        x = self.dropout(x)
+
+        x = self.batch_norm_3(self.fc2(x))
 
         x = F.leaky_relu(self.batch_norm_4(self.fc3(x)))
         x = self.dropout(x)

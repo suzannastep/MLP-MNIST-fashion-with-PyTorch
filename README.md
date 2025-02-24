@@ -35,10 +35,26 @@ The seven models architecture:
 	* **learning rate:** 0.12
 	* No batch normalization, no dropout
 ***
+1. ``Model A middle linear``:
+	* **number of hidden layers:** 4
+	* **sizes of the layers:** [786, 100, 100, 100, 50, 10]
+	* **activation function:** [ReLU, Linear, Linear, ReLU, Softmax]
+	* **optimizer:** SGD
+	* **learning rate:** 0.12
+	* No batch normalization, no dropout
+***
 2. ``Model B``:
 	* **number of hidden layers:** 2
 	* **sizes of the layers:** [786, 100, 50, 10]
 	* **activation function:** [ReLU, ReLU, Softmax]
+	* **optimizer:** ADAM
+	* **learning rate:** 0.0001
+	* No batch normalization, no dropout
+***
+2. ``Model B middle linear``:
+	* **number of hidden layers:** 4
+	* **sizes of the layers:** [786, 100, 100, 100, 50, 10]
+	* **activation function:** [ReLU, Linear, Linear, ReLU, Softmax]
 	* **optimizer:** ADAM
 	* **learning rate:** 0.0001
 	* No batch normalization, no dropout
@@ -52,10 +68,28 @@ The seven models architecture:
 	* **dropout:** 20% on the 3rd layer (size of 50)
 	* No batch normalization
 ***
+3. ``Model C middle linear``:
+	* **number of hidden layers:** 4
+	* **sizes of the layers:** [786, 100, 100, 100, 50, 10]
+	* **activation function:** [ReLU, Linear, Linear, ReLU, Softmax]
+	* **optimizer:** ADAM
+	* **learning rate:** 0.0001
+	* **dropout:** 20% on the penultimate layer (size of 50)
+	* No batch normalization
+***
 4. ``Model D``:
 	* **number of hidden layers:** 2
 	* **sizes of the layers:** [786, 100, 50, 10]
 	* **activation function:** [ReLU, ReLU, Softmax]
+	* **optimizer:** ADAM
+	* **learning rate:** 0.01
+	* **batch normalization:** before the activation function (ReLU) on each of the hidden layers.
+	* No dropout
+***
+4. ``Model D middle linear``:
+	* **number of hidden layers:** 4
+	* **sizes of the layers:** [786, 100, 100, 100, 50, 10]
+	* **activation function:** [ReLU, Linear, Linear, ReLU, Softmax]
 	* **optimizer:** ADAM
 	* **learning rate:** 0.01
 	* **batch normalization:** before the activation function (ReLU) on each of the hidden layers.
@@ -69,6 +103,14 @@ The seven models architecture:
 	* **learning rate:** 0.1
 	* No batch normalization, no dropout
 ***
+5. ``Model E middle linear``:
+	* **number of hidden layers:** 4
+	* **sizes of the layers:** [786, 128, 64, 10, 10, 10]
+	* **activation function:** [ReLU, Linear, Linear, ReLU, Softmax]
+	* **optimizer:** SGD
+	* **learning rate:** 0.1
+	* No batch normalization, no dropout
+***
 6. ``Model F``:
 	* **number of hidden layers:** 4
 	* **sizes of the layers:** [786, 128, 64, 10, 10, 10]
@@ -77,10 +119,27 @@ The seven models architecture:
 	* **learning rate:** 0.001
 	* No batch normalization, no dropout
 ***
-7. ``Best Model``:
+6. ``Model F middle linear``:
+	* **number of hidden layers:** 4
+	* **sizes of the layers:** [786, 128, 64, 10, 10, 10]
+	* **activation function:** [Sigmoid, Linear, Linear, Sigmoid, Softmax]
+	* **optimizer:** ADAM
+	* **learning rate:** 0.001
+	* No batch normalization, no dropout
+***
+7. ``Model G`` (best model):
 	* **number of hidden layers:** 4
 	* **sizes of the layers:** [786, 512, 256, 128, 64, 10]
 	* **activation function:** [Leaky ReLU, Leaky ReLU, Leaky ReLU, Leaky ReLU, Softmax]
+	* **optimizer:** starts with ADAM, then to SGD
+	* **learning rate:** 0.001
+	* **batch normalization:** before the activation function (Leaky ReLU) on each of the hidden layers.
+	* **dropout:** 10% on the input layer (size of 784), 3rd layer (size of 256), and 5th layer (size of 64).
+***
+7. ``Model G middle linear``:
+	* **number of hidden layers:** 4
+	* **sizes of the layers:** [786, 512, 256, 128, 64, 10]
+	* **activation function:** [Leaky ReLU, Linear, Linear, Leaky ReLU, Softmax]
 	* **optimizer:** starts with ADAM, then to SGD
 	* **learning rate:** 0.001
 	* **batch normalization:** before the activation function (Leaky ReLU) on each of the hidden layers.
