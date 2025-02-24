@@ -440,19 +440,17 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     # -train_x train_x -train_y train_y -test_x test_x -test_y test_y -e epochs...
-    parser.add_argument("-train_x", dest="train_x_path", default="train_x", help="train_x file path")
-    parser.add_argument("-train_y", dest="train_y_path", default="train_y", help="train_y file path")
-    parser.add_argument("-test_x", dest="test_x_path", default="test_x", help="test_x file path")
-    parser.add_argument("-test_y", dest="test_y_path", default="test_y", help="test_y file path")
-    parser.add_argument("-e", dest="epochs", default="10", help="Epochs")
+    parser.add_argument("-e", dest="epochs", default="30", help="Epochs")
     parser.add_argument("-batch_size", dest="batch_size", default="64", help="Batch Size")
     parser.add_argument("-validate", dest="validate_percentage", default="10", help="Validate Percentage")
-    parser.add_argument("-model", dest="model", default="ModelG",
+    parser.add_argument("-model", dest="model",
                         help="The Model to run (between A to G)")
-    parser.add_argument("-plot", dest="to_export", default="True",
-                        help="False to don't export a graph of accuracy and loss values.")
 
     args = parser.parse_args()
+    print(args.epochs)
+    print(args.batch_size)
+    print(args.validate_percentage)
+    print(args.model)
 
     train_loader, validate_loader, test_loader = load_original_mnist_fashion(int(args.batch_size),
                                                                                 int(args.validate_percentage))
@@ -493,11 +491,7 @@ if __name__ == "__main__":
     print("========================================")
     print("learn finished.", end=' ')
 
-    if bool(args.to_export):
-        print("exporting plot..")
-        export_plot(best_model)
-    else:
-        print()
+    print("exporting plot..")
 
     print('\nfinal accuracy:')
     validate(best_model, test_loader, is_test=True)
