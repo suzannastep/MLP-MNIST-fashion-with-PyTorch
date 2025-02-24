@@ -13,7 +13,7 @@ import torchvision
 
 class BaseModel(nn.Module):
     def __init__(self, image_size, lr):
-        super(BaseModel, self).__init__()
+        super().__init__()
 
         self.name = 'Base Model'
         self.lr = lr
@@ -29,7 +29,7 @@ class BaseModel(nn.Module):
 
 class ModelA(BaseModel):
     def __init__(self, image_size, lr):
-        super(ModelA, self).__init__(image_size, lr)
+        super().__init__(image_size, lr)
 
         self.name = 'Model A'
 
@@ -49,7 +49,7 @@ class ModelA(BaseModel):
 
 class ModelB(ModelA):
     def __init__(self, image_size, lr):
-        super(ModelB, self).__init__(image_size, lr)
+        super().__init__(image_size, lr)
 
         self.name = 'Model B'
         self.optimizer = optim.Adam(self.parameters(), lr=self.lr)
@@ -57,7 +57,7 @@ class ModelB(ModelA):
 
 class ModelC(ModelB):
     def __init__(self, image_size, lr, dropout=0.2):
-        super(ModelC, self).__init__(image_size, lr)
+        super().__init__(image_size, lr)
 
         self.name = 'Model C'
 
@@ -74,7 +74,7 @@ class ModelC(ModelB):
 
 class ModelD(ModelB):
     def __init__(self, image_size, lr):
-        super(ModelD, self).__init__(image_size, lr)
+        super().__init__(image_size, lr)
 
         self.name = 'Model D'
 
@@ -98,7 +98,7 @@ class ModelD(ModelB):
 
 class ModelE(BaseModel):
     def __init__(self, image_size, lr):
-        super(ModelE, self).__init__(image_size, lr)
+        super().__init__(image_size, lr)
 
         self.name = 'Model E'
 
@@ -123,7 +123,7 @@ class ModelE(BaseModel):
 
 class ModelF(ModelE):
     def __init__(self, image_size, lr):
-        super(ModelF, self).__init__(image_size, lr)
+        super().__init__(image_size, lr)
 
         self.name = 'Model F'
 
@@ -133,7 +133,7 @@ class ModelF(ModelE):
 
 class BestModel(BaseModel):
     def __init__(self, image_size, lr):
-        super(BestModel, self).__init__(image_size, lr=lr)
+        super().__init__(image_size, lr=lr)
 
         self.name = 'Best Model'
 
@@ -331,63 +331,63 @@ def load_local_mnist_fashion(train_x_file, train_y_file, test_x_file, test_y_fil
 
     return train_loader, validate_loader, test_loader
 
+if __name__ == "__main__":
+    # get arguments
+    parser = argparse.ArgumentParser()
 
-# get arguments
-parser = argparse.ArgumentParser()
+    # -train_x train_x -train_y train_y -test_x test_x -test_y test_y -e epochs...
+    parser.add_argument("-train_x", dest="train_x_path", default="train_x", help="train_x file path")
+    parser.add_argument("-train_y", dest="train_y_path", default="train_y", help="train_y file path")
+    parser.add_argument("-test_x", dest="test_x_path", default="test_x", help="test_x file path")
+    parser.add_argument("-test_y", dest="test_y_path", default="test_y", help="test_y file path")
+    parser.add_argument("-e", dest="epochs", default="10", help="Epochs")
+    parser.add_argument("-batch_size", dest="batch_size", default="64", help="Batch Size")
+    parser.add_argument("-validate", dest="validate_percentage", default="10", help="Validate Percentage")
+    parser.add_argument("-model", dest="model", default="BestModel",
+                        help="The Model to run (between A to F or \"BestModel\"")
+    parser.add_argument("-local", dest="is_local", default="False",
+                        help="True for using local train and test file, False for using the original MNIST-fashion dataset")
+    parser.add_argument("-plot", dest="to_export", default="True",
+                        help="False to don't export a graph of accuracy and loss values.")
 
-# -train_x train_x -train_y train_y -test_x test_x -test_y test_y -e epochs...
-parser.add_argument("-train_x", dest="train_x_path", default="train_x", help="train_x file path")
-parser.add_argument("-train_y", dest="train_y_path", default="train_y", help="train_y file path")
-parser.add_argument("-test_x", dest="test_x_path", default="test_x", help="test_x file path")
-parser.add_argument("-test_y", dest="test_y_path", default="test_y", help="test_y file path")
-parser.add_argument("-e", dest="epochs", default="10", help="Epochs")
-parser.add_argument("-batch_size", dest="batch_size", default="64", help="Batch Size")
-parser.add_argument("-validate", dest="validate_percentage", default="10", help="Validate Percentage")
-parser.add_argument("-model", dest="model", default="BestModel",
-                    help="The Model to run (between A to F or \"BestModel\"")
-parser.add_argument("-local", dest="is_local", default="False",
-                    help="True for using local train and test file, False for using the original MNIST-fashion dataset")
-parser.add_argument("-plot", dest="to_export", default="True",
-                    help="False to don't export a graph of accuracy and loss values.")
+    args = parser.parse_args()
 
-args = parser.parse_args()
+    if bool(args.is_local):
+        train_loader, validate_loader, test_loader = load_local_mnist_fashion(args.train_x_path, args.train_y_path,
+                                                                            args.test_x_path, args.test_y_path,
+                                                                            int(args.batch_size),
+                                                                            int(args.validate_percentage))
+    else:
+        train_loader, validate_loader, test_loader = load_original_mnist_fashion(int(args.batch_size),
+                                                                                int(args.validate_percentage))
+    is_best = False
+    if args.model == 'A':
+        model = ModelA(image_size=28 * 28, lr=0.12)
+    elif args.model == 'B':
+        model = ModelB(image_size=28 * 28, lr=0.0001)
+    elif args.model == 'C':
+        model = ModelC(image_size=28 * 28, lr=0.0001)
+    elif args.model == 'D':
+        model = ModelD(image_size=28 * 28, lr=0.01)
+    elif args.model == 'E':
+        model = ModelE(image_size=28 * 28, lr=0.1)
+    elif args.model == 'F':
+        model = ModelF(image_size=28 * 28, lr=0.001)
+    else:
+        model = BestModel(image_size=28 * 28, lr=0.001)
+        is_best = True
 
-if bool(args.is_local):
-    train_loader, validate_loader, test_loader = load_local_mnist_fashion(args.train_x_path, args.train_y_path,
-                                                                          args.test_x_path, args.test_y_path,
-                                                                          int(args.batch_size),
-                                                                          int(args.validate_percentage))
-else:
-    train_loader, validate_loader, test_loader = load_original_mnist_fashion(int(args.batch_size),
-                                                                             int(args.validate_percentage))
-is_best = False
-if args.model == 'A':
-    model = ModelA(image_size=28 * 28, lr=0.12)
-elif args.model == 'B':
-    model = ModelB(image_size=28 * 28, lr=0.0001)
-elif args.model == 'C':
-    model = ModelC(image_size=28 * 28, lr=0.0001)
-elif args.model == 'D':
-    model = ModelD(image_size=28 * 28, lr=0.01)
-elif args.model == 'E':
-    model = ModelE(image_size=28 * 28, lr=0.1)
-elif args.model == 'F':
-    model = ModelF(image_size=28 * 28, lr=0.001)
-else:
-    model = BestModel(image_size=28 * 28, lr=0.001)
-    is_best = True
+    best_model = running_epochs(model, int(args.epochs), is_best=is_best)
+    print("========================================")
+    print("learn finished.", end=' ')
 
-best_model = running_epochs(model, int(args.epochs), is_best=is_best)
-print("========================================")
-print("learn finished.", end=' ')
+    if bool(args.to_export):
+        print("exporting plot..")
+        export_plot(best_model)
+    else:
+        print()
 
-if bool(args.to_export):
-    print("exporting plot..")
-    export_plot(best_model)
-else:
-    print()
-
-print('\nfinal accuracy:')
-validate(best_model, test_loader, is_test=True)
-print(f'[test accuracy:]\t\t\t{"{:.2f}".format(best_model.test_accuracies[-1])}%')
-print(f'[test loss:]\t\t\t\t{"{:.2f}".format(best_model.test_loss[-1])}')
+    print('\nfinal accuracy:')
+    validate(best_model, test_loader, is_test=True)
+    print(f'[test accuracy:]\t\t\t{"{:.2f}".format(best_model.test_accuracies[-1])}%')
+    print(f'[test loss:]\t\t\t\t{"{:.2f}".format(best_model.test_loss[-1])}')
