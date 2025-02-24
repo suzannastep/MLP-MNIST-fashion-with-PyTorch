@@ -435,51 +435,6 @@ def load_original_mnist_fashion(batch_size, validate_percentage):
 
     return train_loader, validate_loader, test_loader
 
-
-def load_local_mnist_fashion(train_x_file, train_y_file, test_x_file, test_y_file, batch_size, validate_percentage):
-    # get data from the files
-    print("loading files..")
-    train_x = np.loadtxt(train_x_file)
-    train_y = np.array([np.loadtxt(train_y_file)]).T
-    test_x = np.loadtxt(test_x_file)
-    test_y = np.array([np.loadtxt(test_y_file)]).T
-
-    train_x /= 255  # normalize train pixels to 0 - 1
-    test_x /= 255  # normalize test pixels to 0 - 1
-
-    # shuffle train data set
-    # print("shuffle training set..")
-    rand = np.arange(len(train_x))
-    np.random.shuffle(rand)
-    train_x = train_x[rand]
-    train_y = train_y[rand]
-
-    # print("separate into validate..")
-    validate_x = train_x[:(len(train_x) * validate_percentage) // 100]
-    validate_y = train_y[:(len(train_y) * validate_percentage) // 100]
-    train_x = train_x[(len(train_x) * validate_percentage) // 100:]
-    train_y = train_y[(len(train_y) * validate_percentage) // 100:]
-
-    # from numpy array to torch tensor
-    train_x = torch.from_numpy(train_x).float()
-    train_y = torch.from_numpy(train_y).long()
-
-    validate_x = torch.from_numpy(validate_x).float()
-    validate_y = torch.from_numpy(validate_y).long()
-
-    test_x = torch.from_numpy(test_x).float()
-    test_y = torch.from_numpy(test_y).long()
-
-    train_xy = TensorDataset(train_x, train_y)
-    validate_xy = TensorDataset(validate_x, validate_y)
-    test_xy = TensorDataset(test_x, test_y)
-
-    train_loader = torch.utils.data.DataLoader(train_xy, batch_size=batch_size, shuffle=True)
-    validate_loader = torch.utils.data.DataLoader(validate_xy, batch_size=batch_size)
-    test_loader = torch.utils.data.DataLoader(test_xy, batch_size=batch_size)
-
-    return train_loader, validate_loader, test_loader
-
 if __name__ == "__main__":
     # get arguments
     parser = argparse.ArgumentParser()
@@ -514,9 +469,25 @@ if __name__ == "__main__":
         model = ModelE(image_size=28 * 28, lr=0.1)
     elif args.model == 'F':
         model = ModelF(image_size=28 * 28, lr=0.001)
-    else:
+    elif args.model == 'G':
         model = ModelG(image_size=28 * 28, lr=0.001)
         is_best = True
+    elif args.model == 'Aml':
+        model = ModelA_middlelinear(image_size=28 * 28, lr=0.12)
+    elif args.model == 'Bml':
+        model = ModelB_middlelinear(image_size=28 * 28, lr=0.0001)
+    elif args.model == 'Cml':
+        model = ModelC_middlelinear(image_size=28 * 28, lr=0.0001)
+    elif args.model == 'Dml':
+        model = ModelD_middlelinear(image_size=28 * 28, lr=0.01)
+    elif args.model == 'Eml':
+        model = ModelE_middlelinear(image_size=28 * 28, lr=0.1)
+    elif args.model == 'Fml':
+        model = ModelF_middlelinear(image_size=28 * 28, lr=0.001)
+    elif args.model == 'Gml':
+        model = ModelG_middlelinear(image_size=28 * 28, lr=0.001)
+    else:
+        raise ValueError("need to specify model")
 
     best_model = running_epochs(model, int(args.epochs), is_best=is_best)
     print("========================================")
