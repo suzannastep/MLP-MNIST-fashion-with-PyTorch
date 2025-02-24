@@ -241,11 +241,11 @@ class ModelF_middlelinear(ModelE_middlelinear):
         self.activation_func = torch.sigmoid
 
 
-class BestModel(BaseModel):
+class ModelG(BaseModel):
     def __init__(self, image_size, lr):
         super().__init__(image_size, lr=lr)
 
-        self.name = 'Best Model'
+        self.name = 'Model G'
 
         self.batch_norm_0 = nn.BatchNorm1d(image_size)
         self.batch_norm_1 = nn.BatchNorm1d(512)
@@ -280,11 +280,11 @@ class BestModel(BaseModel):
         x = self.fc4(x)
         return F.log_softmax(x, dim=1)
     
-class BestModel_middlelinear(BaseModel):
+class ModelG_middlelinear(BaseModel):
     def __init__(self, image_size, lr):
         super().__init__(image_size, lr=lr)
 
-        self.name = 'Best Model'
+        self.name = 'Model G'
 
         self.batch_norm_0 = nn.BatchNorm1d(image_size)
         self.batch_norm_1 = nn.BatchNorm1d(512)
@@ -492,22 +492,14 @@ if __name__ == "__main__":
     parser.add_argument("-e", dest="epochs", default="10", help="Epochs")
     parser.add_argument("-batch_size", dest="batch_size", default="64", help="Batch Size")
     parser.add_argument("-validate", dest="validate_percentage", default="10", help="Validate Percentage")
-    parser.add_argument("-model", dest="model", default="BestModel",
-                        help="The Model to run (between A to F or \"BestModel\"")
-    parser.add_argument("-local", dest="is_local", default="False",
-                        help="True for using local train and test file, False for using the original MNIST-fashion dataset")
+    parser.add_argument("-model", dest="model", default="ModelG",
+                        help="The Model to run (between A to G)")
     parser.add_argument("-plot", dest="to_export", default="True",
                         help="False to don't export a graph of accuracy and loss values.")
 
     args = parser.parse_args()
 
-    if bool(args.is_local):
-        train_loader, validate_loader, test_loader = load_local_mnist_fashion(args.train_x_path, args.train_y_path,
-                                                                            args.test_x_path, args.test_y_path,
-                                                                            int(args.batch_size),
-                                                                            int(args.validate_percentage))
-    else:
-        train_loader, validate_loader, test_loader = load_original_mnist_fashion(int(args.batch_size),
+    train_loader, validate_loader, test_loader = load_original_mnist_fashion(int(args.batch_size),
                                                                                 int(args.validate_percentage))
     is_best = False
     if args.model == 'A':
@@ -523,7 +515,7 @@ if __name__ == "__main__":
     elif args.model == 'F':
         model = ModelF(image_size=28 * 28, lr=0.001)
     else:
-        model = BestModel(image_size=28 * 28, lr=0.001)
+        model = ModelG(image_size=28 * 28, lr=0.001)
         is_best = True
 
     best_model = running_epochs(model, int(args.epochs), is_best=is_best)
