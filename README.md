@@ -145,7 +145,7 @@ The seven models architecture:
 	* **batch normalization:** before the activation function (Leaky ReLU) on each of the hidden layers.
 	* **dropout:** 10% on the input layer (size of 784), 3rd layer (size of 256), and 5th layer (size of 64).
 
-To get the best percentages on the testing set (90+), our experiments showed that the ``Best Model`` should be run for about ``30`` epochs, with ``batch size = 64`` and ``validation percentage = 10%``.
+To get the best percentages on the testing set (90+), our experiments showed that the ``Model G`` should be run for about ``30`` epochs, with ``batch size = 64`` and ``validation percentage = 10%``.
 
 ### Running Instructions
 
@@ -157,7 +157,7 @@ The program gets several arguments, and this can be seen with the ``-h`` or with
 * **flag ```-e INT```:** An ``Integer`` for the number of epochs (``default value = 10``).
 * **flag ```-batch_size INT```:** An ``Integer`` for the batch size (``default value = 64``).
 * **flag ```-validate INT```:** An ``Integer`` for the percentage of the training set that should be allocated to the validation set (``default value = 10``).
-* **flag ```-model STRING```:** A ``String`` that says with which model to work in the program run. You can send ``'A'`` - ``'F'`` or ``'BestModel'`` (``default value = BestModel``).
+* **flag ```-model STRING```:** A ``String`` that says with which model to work in the program run. You can send ``'A'`` - ``'F'`` or ``'ModelG'`` (``default value = ModelG``).
 * **flag ```-local BOOLEAN```:** ``True`` to load the dataset locally (according to the paths entered), or ``False`` to load the original MNIST-fashion dataset (``default value = False``).
 * **flag  `-plot BOOLEAN`:** ``True`` to export a graph of the percentage of accuracy and loss value in each epoch (`default value = True`).
 
@@ -193,7 +193,7 @@ Note that for using the dataset given in this repo, you need to unzip the datase
 	```
 5. Run the ```main.py``` file with your favorite parameters:
 	```
-	$ python3 main.py -e 30 -validate 10 -model BestModel -batch_size 64
+	$ python3 main.py -e 30 -validate 10 -model ModelG -batch_size 64
 	 ```
 
  
