@@ -288,8 +288,6 @@ class ModelG_middlelinear(BaseModel):
 
         self.batch_norm_0 = nn.BatchNorm1d(image_size)
         self.batch_norm_1 = nn.BatchNorm1d(512)
-        self.batch_norm_2 = nn.BatchNorm1d(256)
-        self.batch_norm_3 = nn.BatchNorm1d(128)
         self.batch_norm_4 = nn.BatchNorm1d(64)
 
         self.fc0 = nn.Linear(image_size, 512)
@@ -308,10 +306,10 @@ class ModelG_middlelinear(BaseModel):
 
         x = F.leaky_relu(self.batch_norm_1(self.fc0(x)))
 
-        x = self.batch_norm_2(self.fc1(x))
+        x = self.fc1(x)
         x = self.dropout(x)
 
-        x = self.batch_norm_3(self.fc2(x))
+        x = self.fc2(x)
 
         x = F.leaky_relu(self.batch_norm_4(self.fc3(x)))
         x = self.dropout(x)

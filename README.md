@@ -147,6 +147,30 @@ The seven models architecture:
 
 To get the best percentages on the testing set (90+), our experiments showed that the ``Model G`` should be run for about ``30`` epochs, with ``batch size = 64`` and ``validation percentage = 10%``.
 
+### Model Chart
+| Model | # Hidden Layers | Model Sketch | Optimizer | Learning Rate | Batch Normalization | Dropout |
+| - | - | - | - | - | - | - |
+| A     | 2      | 100 ReLU 50 ReLU 10 Softmax                       | SGD  | 0.12 |  |  | 
+| A (ML)| 4      | 100 ReLU 100 Linear 100 Linear 50 ReLU 10 Softmax | SGD  | 0.12 |  |  | 
+| B     | 2      | 100 ReLU 50 ReLU 10 Softmax | Adam | 1e-4 |  |  | 
+| B (ML)| 4      | 100 ReLU 100 Linear 100 Linear 50 ReLU 10 Softmax | Adam | 1e-4 |  |  | 
+| C     | 2      | 100 ReLU 50 ReLU 10 Softmax | Adam | 1e-4 |  | 20% on penultimate layer | 
+| C (ML)| 4      | 100 ReLU 100 Linear 100 Linear 50 ReLU 10 Softmax | Adam | 1e-4 |  | 20% on penultimate layer | 
+| D     | 2      | 100 ReLU 50 ReLU 10 Softmax | Adam | 1e-2 | Before each ReLU |  | 
+| D (ML)| 4      | 100 ReLU 100 Linear 100 Linear 50 ReLU 10 Softmax | Adam | 1e-2 | Before each ReLU |  | 
+| E     | 4      | 128 ReLU 64 ReLU 10 ReLU 10 ReLU 10 Softmax | SGD | 1e-1 |  |  | 
+| E (ML)| 4      | 128 ReLU 64 Linear 10 Linear 10 ReLU 10 Softmax | SGD | 1e-1 |  |  | 
+| F     | 4      | 128 Sigmoid 64 Sigmoid 10 Sigmoid 10 Sigmoid 10 Softmax | Adam | 1e-3 |  |  | 
+| F (ML)| 4      | 128 Sigmoid 64 Linear 10 Linear 10 Sigmoid 10 Softmax | Adam | 1e-3 |  |  | 
+| G     | 4      | 512 LeakyReLU 256 LeakyReLU 128 LeakyReLU 64 LeakyReLU 10 Softmax | 14 epochs of Adam, then SGD | 1e-3 | Before each LeakyReLU | 10% on the input layer (size of 784), 3rd layer (size of 256), and 5th layer (size of 64) | 
+| G (ML)| 4      | 512 LeakyReLU 256 Linear 128 Linear 64 LeakyReLU 10 Softmax | 14 epochs of Adam, then SGD | 1e-3 | Before each LeakyReLU | 10% on the input layer (size of 784), 3rd layer (size of 256), and 5th layer (size of 64) | 
+
+- (ML) denotes the "middle linear" version of the model
+- Trained on negative log likelihood loss with a scheduler that decays the learning by a factor of 0.2 every 7 epochs. 
+- After each epoch, the validation error of the model is recorded; the final trained model is the model at the epoch with the best validation error.
+- If the validation accuracy ever surpasses 90% at the end of an epoch, then the learning rate is set to 1e-4.
+- Trained for 30 epochs with a batch size of 64
+
 ### Running Instructions
 
 The program gets several arguments, and this can be seen with the ``-h`` or with ``-help`` flags when running. A total of about ten arguments can be sent:
