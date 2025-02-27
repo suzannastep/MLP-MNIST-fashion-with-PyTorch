@@ -443,6 +443,7 @@ if __name__ == "__main__":
     parser.add_argument("-batch_size", dest="batch_size", default="64",type=int, help="Batch Size")
     parser.add_argument("-validate", dest="validate_percentage", default="10",type=int, help="Validate Percentage")
     parser.add_argument("--model", dest="model",help="The Model to run (between A to G), add ml after for middle linear")
+    parser.add_argument("--filename", dest="filename",help="filename for logging and output purposes")
 
     args = parser.parse_args()
     logging.basicConfig(filename=f"log/{args.filename}.out", encoding='utf-8', level=logging.INFO)
