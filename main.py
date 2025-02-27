@@ -336,7 +336,7 @@ def export_plot(model):
 
     plt.legend()
     plt.savefig(f'{model.name}.png')
-    logging.info(f'model saved to \'{model.name}.png\'')
+    logging.info(f'plot saved to \'{model.name}.png\'')
 
 
 def train(model, train_set):
@@ -485,8 +485,9 @@ if __name__ == "__main__":
         raise ValueError("need to specify model")
 
     best_model = running_epochs(model, args.epochs, is_best=is_best)
+    torch.save(best_model.state_dict(), f"{args.filename}/model.pt")
     logging.info("========================================")
-    logging.info("learn finished.")
+    logging.info("learn finished and best model saved")
 
     logging.info("exporting plot..")
 
