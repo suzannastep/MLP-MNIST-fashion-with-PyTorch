@@ -33,6 +33,7 @@ class ModelA(BaseModel):
         super().__init__(image_size, lr)
 
         self.name = 'Model A'
+        self.modelsketch = "100 ReLU 50 ReLU 10 Softmax"
 
         self.fc0 = nn.Linear(image_size, 100)
         self.fc1 = nn.Linear(100, 50)
@@ -53,6 +54,7 @@ class ModelA_middlelinear(BaseModel):
         super().__init__(image_size, lr)
 
         self.name = 'Model A middle linear'
+        self.modelsketch = "100 ReLU 100 Linear 100 Linear 50 ReLU 10 Softmax"
 
         self.fc0 = nn.Linear(image_size, 100)
         self.fc1 = nn.Linear(100, 100)
@@ -178,6 +180,7 @@ class ModelE(BaseModel):
         super().__init__(image_size, lr)
 
         self.name = 'Model E'
+        self.modelsketch = "128 ReLU 64 ReLU 10 ReLU 10 ReLU 10 Softmax"
 
         self.fc0 = nn.Linear(image_size, 128)
         self.fc1 = nn.Linear(128, 64)
@@ -203,6 +206,7 @@ class ModelE_middlelinear(BaseModel):
         super().__init__(image_size, lr)
 
         self.name = 'Model E middle linear'
+        self.modelsketch = "128 ReLU 64 Linear 10 Linear 10 ReLU 10 Softmax"
 
         self.fc0 = nn.Linear(image_size, 128)
         self.fc1 = nn.Linear(128, 64)
@@ -227,6 +231,7 @@ class ModelF(ModelE):
         super().__init__(image_size, lr)
 
         self.name = 'Model F'
+        self.modelsketch = "128 Sigmoid 64 Sigmoid 10 Sigmoid 10 Sigmoid 10 Softmax"
 
         self.optimizer = optim.Adam(self.parameters(), lr=self.lr)
         self.activation_func = torch.sigmoid
@@ -237,6 +242,7 @@ class ModelF_middlelinear(ModelE_middlelinear):
         super().__init__(image_size, lr)
 
         self.name = 'Model F middle linear'
+        self.modelsketch = "128 Sigmoid 64 Linear 10 Linear 10 Sigmoid 10 Softmax"
 
         self.optimizer = optim.Adam(self.parameters(), lr=self.lr)
         self.activation_func = torch.sigmoid
@@ -247,6 +253,7 @@ class ModelG(BaseModel):
         super().__init__(image_size, lr=lr)
 
         self.name = 'Model G'
+        self.modelsketch = "512 LeakyReLU 256 LeakyReLU 128 LeakyReLU 64 LeakyReLU 10 Softmax"
 
         self.batch_norm_0 = nn.BatchNorm1d(image_size)
         self.batch_norm_1 = nn.BatchNorm1d(512)
@@ -286,6 +293,7 @@ class ModelG_middlelinear(BaseModel):
         super().__init__(image_size, lr=lr)
 
         self.name = 'Model G middle linear'
+        self.modelsketch = "512 LeakyReLU 256 Linear 128 Linear 64 LeakyReLU 10 Softmax"
 
         self.batch_norm_0 = nn.BatchNorm1d(image_size)
         self.batch_norm_1 = nn.BatchNorm1d(512)
