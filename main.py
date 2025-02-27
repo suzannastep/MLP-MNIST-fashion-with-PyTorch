@@ -9,6 +9,7 @@ import torch.nn.functional as F
 from torch import nn, optim
 from torch.utils.data import TensorDataset
 import torchvision
+import pickle
 
 
 class BaseModel(nn.Module):
@@ -284,7 +285,7 @@ class ModelG_middlelinear(BaseModel):
     def __init__(self, image_size, lr):
         super().__init__(image_size, lr=lr)
 
-        self.name = 'Model G'
+        self.name = 'Model G middle linear'
 
         self.batch_norm_0 = nn.BatchNorm1d(image_size)
         self.batch_norm_1 = nn.BatchNorm1d(512)
@@ -486,6 +487,8 @@ if __name__ == "__main__":
 
     best_model = running_epochs(model, args.epochs, is_best=is_best)
     torch.save(best_model.state_dict(), f"{args.filename}/model.pt")
+    with open(f"{args.filename}/model.pkl", "wb") as f:
+        pickle.dump(best_model, f, -1)
     logging.info("========================================")
     logging.info("learn finished and best model saved")
 
