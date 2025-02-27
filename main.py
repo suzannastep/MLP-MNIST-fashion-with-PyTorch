@@ -366,7 +366,7 @@ def validate(model, validate_set, is_test=False):
     with torch.no_grad():
         for _, (x, y) in enumerate(validate_set):
             output = model(x)
-            loss = F.nll_loss(output, y.T)
+            loss = F.nll_loss(output, y)
             validate_loss += float(loss.data)
             pred = output.max(1, keepdim=True)[1]
             correct += pred.eq(y.view_as(pred)).sum().item()
