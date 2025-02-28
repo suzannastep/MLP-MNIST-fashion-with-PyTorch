@@ -363,6 +363,72 @@ class ModelG_middlelinear(BaseModel):
         x = self.fc4(x)
         return F.log_softmax(x, dim=1)
 
+class ModelH(BaseModel):
+    def __init__(self, image_size, lr, hiddenwidth):
+        super().__init__(image_size, lr=lr)
+
+        self.name = 'Model H'
+        self.hiddenwidth = hiddenwidth
+        self.modelsketch = f"{self.hiddenwidth} ReLU {self.hiddenwidth} ReLU {self.hiddenwidth} ReLU {self.hiddenwidth} ReLU 10 Softmax"
+
+        self.fc0 = nn.Linear(image_size, self.hiddenwidth)
+        self.fc1 = nn.Linear(self.hiddenwidth, self.hiddenwidth)
+        self.fc2 = nn.Linear(self.hiddenwidth, self.hiddenwidth)
+        self.fc3 = nn.Linear(self.hiddenwidth, self.hiddenwidth)
+        self.fc4 = nn.Linear(self.hiddenwidth, 10)
+
+        self.dropout = nn.Dropout(p=0.1)
+
+        self.paramlist = add_weight_decay(self)
+        self.optimizer = optim.Adam(self.paramlist, lr=lr)
+
+    def forward(self, x):
+        x = x.view(-1, self.image_size)
+        x = self.dropout(x)
+
+        x = F.relu(self.fc0(x))
+
+        x = F.relu(self.fc1(x))
+        x = self.dropout(x)
+
+        x = F.relu(self.fc2(x))
+
+        x = F.relu(self.fc3(x))
+        x = self.dropout(x)
+
+        x = self.fc4(x)
+        return F.log_softmax(x, dim=1)
+    
+class ModelH_middlelinear(ModelH):
+    def __init__(self, image_size, lr, hiddenwidth):
+        super().__init__(image_size, lr=lr, hiddenwidth=hiddenwidth)
+
+        self.name += " middle linear"
+        self.modelsketch = f"{self.hiddenwidth} ReLU {self.hiddenwidth} Linear {self.hiddenwidth} Linear {self.hiddenwidth} ReLU 10 Softmax"
+
+        self.fc1 = nn.Linear(self.hiddenwidth, self.hiddenwidth, bias=False)
+        self.fc2 = nn.Linear(self.hiddenwidth, self.hiddenwidth, bias=False)
+        self.fc3 = nn.Linear(self.hiddenwidth, self.hiddenwidth, bias=False)
+
+        self.paramlist = add_weight_decay(self)
+        self.optimizer = optim.Adam(self.paramlist, lr=lr)
+
+    def forward(self, x):
+        x = x.view(-1, self.image_size)
+        x = self.dropout(x)
+
+        x = F.relu(self.fc0(x))
+
+        x = self.fc1(x)
+        x = self.dropout(x)
+
+        x = self.fc2(x)
+
+        x = F.relu(self.fc3(x))
+        x = self.dropout(x)
+
+        x = self.fc4(x)
+        return F.log_softmax(x, dim=1)
 
 def export_plot(model):
     plt.subplot(2, 1, 1)
@@ -514,6 +580,8 @@ if __name__ == "__main__":
     elif args.model == 'G':
         model = ModelG(image_size=28 * 28, lr=0.001)
         is_best = True
+    elif args.model == 'H':
+        model = ModelH(image_size=28 * 28, lr=0.001, hiddenwidth=1000)
     elif args.model == 'Aml':
         model = ModelA_middlelinear(image_size=28 * 28, lr=0.12)
     elif args.model == 'Bml':
@@ -528,6 +596,8 @@ if __name__ == "__main__":
         model = ModelF_middlelinear(image_size=28 * 28, lr=0.001)
     elif args.model == 'Gml':
         model = ModelG_middlelinear(image_size=28 * 28, lr=0.001)
+    elif args.model == 'Hml':
+        model = ModelH_middlelinear(image_size=28 * 28, lr=0.001, hiddenwidth=1000)
     else:
         raise ValueError("need to specify model")
 

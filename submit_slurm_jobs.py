@@ -49,8 +49,9 @@ if __name__ == "__main__":
     code_file = '/home/sueparkinson/deeprelu/MLP-MNIST-fashion-with-PyTorch/main.py'
     jobname = "fashionMNIST"
     parameters = OrderedDict()
-    parameters['model'] = ['A'  ,'B'  ,'C'  ,'D'  ,'E'  ,'F'  ,'G',
-                            'Aml','Bml','Cml','Dml','Eml','Fml','Gml',]
+    parameters['model'] = ['H','Hml']
+                            #['A'  ,'B'  ,'C'  ,'D'  ,'E'  ,'F'  ,'G',
+                            #'Aml','Bml','Cml','Dml','Eml','Fml','Gml',]
     parameters['wd'] = [1e-3,1e-4,1e-5,1e-6,0]
     # create folder in the current working directory
     mkdir(jobname)
