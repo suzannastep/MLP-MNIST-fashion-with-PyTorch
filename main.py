@@ -57,9 +57,9 @@ class ModelA_middlelinear(BaseModel):
         self.modelsketch = "100 ReLU 100 Linear 100 Linear 50 ReLU 10 Softmax"
 
         self.fc0 = nn.Linear(image_size, 100)
-        self.fc1 = nn.Linear(100, 100)
-        self.fc2 = nn.Linear(100, 100)
-        self.fc3 = nn.Linear(100, 50)
+        self.fc1 = nn.Linear(100, 100,bias=False)
+        self.fc2 = nn.Linear(100, 100,bias=False)
+        self.fc3 = nn.Linear(100, 50,bias=False)
         self.fc4 = nn.Linear(50, 10)
 
         self.optimizer = optim.SGD(self.parameters(), lr=self.lr)
@@ -209,9 +209,9 @@ class ModelE_middlelinear(BaseModel):
         self.modelsketch = "128 ReLU 64 Linear 10 Linear 10 ReLU 10 Softmax"
 
         self.fc0 = nn.Linear(image_size, 128)
-        self.fc1 = nn.Linear(128, 64)
-        self.fc2 = nn.Linear(64, 10)
-        self.fc3 = nn.Linear(10, 10)
+        self.fc1 = nn.Linear(128, 64,bias=False)
+        self.fc2 = nn.Linear(64, 10,bias=False)
+        self.fc3 = nn.Linear(10, 10,bias=False)
         self.fc4 = nn.Linear(10, 10)
 
         self.optimizer = optim.SGD(self.parameters(), lr=self.lr)
@@ -300,9 +300,9 @@ class ModelG_middlelinear(BaseModel):
         self.batch_norm_4 = nn.BatchNorm1d(64)
 
         self.fc0 = nn.Linear(image_size, 512)
-        self.fc1 = nn.Linear(512, 256)
-        self.fc2 = nn.Linear(256, 128)
-        self.fc3 = nn.Linear(128, 64)
+        self.fc1 = nn.Linear(512, 256,bias=False)
+        self.fc2 = nn.Linear(256, 128,bias=False)
+        self.fc3 = nn.Linear(128, 64,bias=False)
         self.fc4 = nn.Linear(64, 10)
 
         self.dropout = nn.Dropout(p=0.1)

@@ -38,7 +38,7 @@ The seven models architecture:
 1. ``Model A middle linear``:
 	* **number of hidden layers:** 4
 	* **sizes of the layers:** [786, 100, 100, 100, 50, 10]
-	* **activation function:** [ReLU, Linear, Linear, ReLU, Softmax]
+	* **activation function:** [ReLU, Bias-Free Linear, Bias-Free Linear, Bias-Free ReLU, Softmax]
 	* **optimizer:** SGD
 	* **learning rate:** 0.12
 	* No batch normalization, no dropout
@@ -54,7 +54,7 @@ The seven models architecture:
 2. ``Model B middle linear``:
 	* **number of hidden layers:** 4
 	* **sizes of the layers:** [786, 100, 100, 100, 50, 10]
-	* **activation function:** [ReLU, Linear, Linear, ReLU, Softmax]
+	* **activation function:** [ReLU, Bias-Free Linear, Bias-Free Linear, Bias-Free ReLU, Softmax]
 	* **optimizer:** ADAM
 	* **learning rate:** 0.0001
 	* No batch normalization, no dropout
@@ -71,7 +71,7 @@ The seven models architecture:
 3. ``Model C middle linear``:
 	* **number of hidden layers:** 4
 	* **sizes of the layers:** [786, 100, 100, 100, 50, 10]
-	* **activation function:** [ReLU, Linear, Linear, ReLU, Softmax]
+	* **activation function:** [ReLU, Bias-Free Linear, Bias-Free Linear, Bias-Free ReLU, Softmax]
 	* **optimizer:** ADAM
 	* **learning rate:** 0.0001
 	* **dropout:** 20% on the penultimate layer (size of 50)
@@ -89,7 +89,7 @@ The seven models architecture:
 4. ``Model D middle linear``:
 	* **number of hidden layers:** 4
 	* **sizes of the layers:** [786, 100, 100, 100, 50, 10]
-	* **activation function:** [ReLU, Linear, Linear, ReLU, Softmax]
+	* **activation function:** [ReLU, Bias-Free Linear, Bias-Free Linear, Bias-Free ReLU, Softmax]
 	* **optimizer:** ADAM
 	* **learning rate:** 0.01
 	* **batch normalization:** before the activation function (ReLU) on each of the hidden layers.
@@ -106,7 +106,7 @@ The seven models architecture:
 5. ``Model E middle linear``:
 	* **number of hidden layers:** 4
 	* **sizes of the layers:** [786, 128, 64, 10, 10, 10]
-	* **activation function:** [ReLU, Linear, Linear, ReLU, Softmax]
+	* **activation function:** [ReLU, Bias-Free Linear, Bias-Free Linear, Bias-Free ReLU, Softmax]
 	* **optimizer:** SGD
 	* **learning rate:** 0.1
 	* No batch normalization, no dropout
@@ -122,7 +122,7 @@ The seven models architecture:
 6. ``Model F middle linear``:
 	* **number of hidden layers:** 4
 	* **sizes of the layers:** [786, 128, 64, 10, 10, 10]
-	* **activation function:** [Sigmoid, Linear, Linear, Sigmoid, Softmax]
+	* **activation function:** [Sigmoid, Bias-Free Linear, Bias-Free Linear, Sigmoid, Softmax]
 	* **optimizer:** ADAM
 	* **learning rate:** 0.001
 	* No batch normalization, no dropout
@@ -139,7 +139,7 @@ The seven models architecture:
 7. ``Model G middle linear``:
 	* **number of hidden layers:** 4
 	* **sizes of the layers:** [786, 512, 256, 128, 64, 10]
-	* **activation function:** [Leaky ReLU, Linear, Linear, Leaky ReLU, Softmax]
+	* **activation function:** [Leaky ReLU, Bias-Free Linear, Bias-Free Linear, Leaky ReLU, Softmax]
 	* **optimizer:** starts with ADAM, then to SGD
 	* **learning rate:** 0.001
 	* **batch normalization:** before the activation function (Leaky ReLU) on each of the hidden layers.
@@ -151,19 +151,19 @@ To get the best percentages on the testing set (90+), our experiments showed tha
 | Model | # Hidden Layers | Model Sketch | Optimizer | Learning Rate | Batch Normalization | Dropout |
 | - | - | - | - | - | - | - |
 | A     | 2      | 100 ReLU 50 ReLU 10 Softmax                       | SGD  | 0.12 |  |  | 
-| A (ML)| 4      | 100 ReLU 100 Linear 100 Linear 50 ReLU 10 Softmax | SGD  | 0.12 |  |  | 
+| A (ML)| 4      | 100 ReLU 100 Bias-Free Linear 100 Bias-Free Linear 50 Bias-Free ReLU 10 Softmax | SGD  | 0.12 |  |  | 
 | B     | 2      | 100 ReLU 50 ReLU 10 Softmax | Adam | 1e-4 |  |  | 
-| B (ML)| 4      | 100 ReLU 100 Linear 100 Linear 50 ReLU 10 Softmax | Adam | 1e-4 |  |  | 
+| B (ML)| 4      | 100 ReLU 100 Bias-Free Linear 100 Bias-Free Linear 50 Bias-Free ReLU 10 Softmax | Adam | 1e-4 |  |  | 
 | C     | 2      | 100 ReLU 50 ReLU 10 Softmax | Adam | 1e-4 |  | 20% on penultimate layer | 
-| C (ML)| 4      | 100 ReLU 100 Linear 100 Linear 50 ReLU 10 Softmax | Adam | 1e-4 |  | 20% on penultimate layer | 
+| C (ML)| 4      | 100 ReLU 100 Bias-Free Linear 100 Bias-Free Linear 50 Bias-Free ReLU 10 Softmax | Adam | 1e-4 |  | 20% on penultimate layer | 
 | D     | 2      | 100 ReLU 50 ReLU 10 Softmax | Adam | 1e-2 | Before each ReLU |  | 
-| D (ML)| 4      | 100 ReLU 100 Linear 100 Linear 50 ReLU 10 Softmax | Adam | 1e-2 | Before each ReLU |  | 
+| D (ML)| 4      | 100 ReLU 100 Bias-Free Linear 100 Bias-Free Linear 50 Bias-Free ReLU 10 Softmax | Adam | 1e-2 | Before each ReLU |  | 
 | E     | 4      | 128 ReLU 64 ReLU 10 ReLU 10 ReLU 10 Softmax | SGD | 1e-1 |  |  | 
-| E (ML)| 4      | 128 ReLU 64 Linear 10 Linear 10 ReLU 10 Softmax | SGD | 1e-1 |  |  | 
+| E (ML)| 4      | 128 ReLU 64 Bias-Free Linear 10 Bias-Free Linear 10 Bias-Free ReLU 10 Softmax | SGD | 1e-1 |  |  | 
 | F     | 4      | 128 Sigmoid 64 Sigmoid 10 Sigmoid 10 Sigmoid 10 Softmax | Adam | 1e-3 |  |  | 
-| F (ML)| 4      | 128 Sigmoid 64 Linear 10 Linear 10 Sigmoid 10 Softmax | Adam | 1e-3 |  |  | 
+| F (ML)| 4      | 128 Sigmoid 64 Bias-Free Linear 10 Bias-Free Linear 10 Bias-Free Sigmoid 10 Softmax | Adam | 1e-3 |  |  | 
 | G     | 4      | 512 LeakyReLU 256 LeakyReLU 128 LeakyReLU 64 LeakyReLU 10 Softmax | 14 epochs of Adam, then SGD | 1e-3 | Before each LeakyReLU | 10% on the input layer (size of 784), 3rd layer (size of 256), and 5th layer (size of 64) | 
-| G (ML)| 4      | 512 LeakyReLU 256 Linear 128 Linear 64 LeakyReLU 10 Softmax | 14 epochs of Adam, then SGD | 1e-3 | Before each LeakyReLU | 10% on the input layer (size of 784), 3rd layer (size of 256), and 5th layer (size of 64) | 
+| G (ML)| 4      | 512 LeakyReLU 256 Bias-Free Linear 128 Bias-Free Linear 64 Bias-Free LeakyReLU 10 Softmax | 14 epochs of Adam, then SGD | 1e-3 | Before each LeakyReLU | 10% on the input layer (size of 784), 3rd layer (size of 256), and 5th layer (size of 64) | 
 
 - (ML) denotes the "middle linear" version of the model
 - Trained on negative log likelihood loss with a scheduler that decays the learning by a factor of 0.2 every 7 epochs. 
