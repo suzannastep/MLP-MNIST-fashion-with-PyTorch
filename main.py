@@ -11,6 +11,32 @@ from torch.utils.data import TensorDataset
 import torchvision
 import pickle
 
+def add_weight_decay(model, skip_list=()):
+    """
+    helper function for weight decay only on weights, not on biases
+    """
+    decay = []
+    no_decay = []
+    for name, param in model.named_parameters():
+        if not param.requires_grad:
+            continue  #frozen weights
+        if len(param.shape) == 1 or name.endswith(".bias") or name in skip_list:
+            no_decay.append(param)
+        else:
+            decay.append(param)
+    return [
+        {'params': no_decay, 'weight_decay': 0.},
+        {'params': decay, 'weight_decay': args.wd}]
+
+def weight_decay_val(paramlist):
+    """
+    computes the value of the weight decay term after an epoch
+    """
+    sum = 0.
+    for weight in paramlist[1]['params']:
+        with torch.no_grad():
+            sum += (weight**2).sum()
+    return sum.item()
 
 class BaseModel(nn.Module):
     def __init__(self, image_size, lr):
@@ -26,6 +52,7 @@ class BaseModel(nn.Module):
         self.validate_loss = []
         self.test_accuracies = []
         self.test_loss = []
+        self.sum_of_squared_params = []
 
 
 class ModelA(BaseModel):
@@ -39,7 +66,8 @@ class ModelA(BaseModel):
         self.fc1 = nn.Linear(100, 50)
         self.fc2 = nn.Linear(50, 10)
 
-        self.optimizer = optim.SGD(self.parameters(), lr=self.lr)
+        self.paramlist = add_weight_decay(self)
+        self.optimizer = optim.SGD(self.paramlist, lr=self.lr)
 
     def forward(self, x):
         x = x.view(-1, self.image_size)
@@ -62,7 +90,8 @@ class ModelA_middlelinear(BaseModel):
         self.fc3 = nn.Linear(100, 50,bias=False)
         self.fc4 = nn.Linear(50, 10)
 
-        self.optimizer = optim.SGD(self.parameters(), lr=self.lr)
+        self.paramlist = add_weight_decay(self)
+        self.optimizer = optim.SGD(self.paramlist, lr=self.lr)
 
     def forward(self, x):
         x = x.view(-1, self.image_size)
@@ -79,7 +108,8 @@ class ModelB(ModelA):
         super().__init__(image_size, lr)
 
         self.name = 'Model B'
-        self.optimizer = optim.Adam(self.parameters(), lr=self.lr)
+        self.paramlist = add_weight_decay(self)
+        self.optimizer = optim.Adam(self.paramlist, lr=self.lr)
 
 
 class ModelB_middlelinear(ModelA_middlelinear):
@@ -87,7 +117,8 @@ class ModelB_middlelinear(ModelA_middlelinear):
         super().__init__(image_size, lr)
 
         self.name = 'Model B middle linear'
-        self.optimizer = optim.Adam(self.parameters(), lr=self.lr)
+        self.paramlist = add_weight_decay(self)
+        self.optimizer = optim.Adam(self.paramlist, lr=self.lr)
 
 
 class ModelC(ModelB):
@@ -188,7 +219,8 @@ class ModelE(BaseModel):
         self.fc3 = nn.Linear(10, 10)
         self.fc4 = nn.Linear(10, 10)
 
-        self.optimizer = optim.SGD(self.parameters(), lr=self.lr)
+        self.paramlist = add_weight_decay(self)
+        self.optimizer = optim.SGD(self.paramlist, lr=self.lr)
         self.activation_func = F.relu
 
     def forward(self, x):
@@ -214,7 +246,8 @@ class ModelE_middlelinear(BaseModel):
         self.fc3 = nn.Linear(10, 10,bias=False)
         self.fc4 = nn.Linear(10, 10)
 
-        self.optimizer = optim.SGD(self.parameters(), lr=self.lr)
+        self.paramlist = add_weight_decay(self)
+        self.optimizer = optim.SGD(self.paramlist, lr=self.lr)
         self.activation_func = F.relu
 
     def forward(self, x):
@@ -233,7 +266,8 @@ class ModelF(ModelE):
         self.name = 'Model F'
         self.modelsketch = "128 Sigmoid 64 Sigmoid 10 Sigmoid 10 Sigmoid 10 Softmax"
 
-        self.optimizer = optim.Adam(self.parameters(), lr=self.lr)
+        self.paramlist = add_weight_decay(self)
+        self.optimizer = optim.Adam(self.paramlist, lr=self.lr)
         self.activation_func = torch.sigmoid
 
 
@@ -244,7 +278,8 @@ class ModelF_middlelinear(ModelE_middlelinear):
         self.name = 'Model F middle linear'
         self.modelsketch = "128 Sigmoid 64 Linear 10 Linear 10 Sigmoid 10 Softmax"
 
-        self.optimizer = optim.Adam(self.parameters(), lr=self.lr)
+        self.paramlist = add_weight_decay(self)
+        self.optimizer = optim.Adam(self.paramlist, lr=self.lr)
         self.activation_func = torch.sigmoid
 
 
@@ -269,7 +304,8 @@ class ModelG(BaseModel):
 
         self.dropout = nn.Dropout(p=0.1)
 
-        self.optimizer = optim.Adam(self.parameters(), lr=lr)
+        self.paramlist = add_weight_decay(self)
+        self.optimizer = optim.Adam(self.paramlist, lr=lr)
 
     def forward(self, x):
         x = x.view(-1, self.image_size)
@@ -307,7 +343,8 @@ class ModelG_middlelinear(BaseModel):
 
         self.dropout = nn.Dropout(p=0.1)
 
-        self.optimizer = optim.Adam(self.parameters(), lr=lr)
+        self.paramlist = add_weight_decay(self)
+        self.optimizer = optim.Adam(self.paramlist, lr=lr)
 
     def forward(self, x):
         x = x.view(-1, self.image_size)
@@ -364,7 +401,7 @@ def train(model, train_set):
 
     model.train_accuracies.append(100 * correct / len(train_set.dataset))
     model.train_loss.append(train_loss / (len(train_set.dataset) / train_set.batch_size))
-
+    model.sum_of_squared_params.append(weight_decay_val(model.paramlist))
 
 def validate(model, validate_set, is_test=False):
     model.eval()
@@ -395,7 +432,7 @@ def running_epochs(model, epochs, is_best):
     for i in range(epochs):
         if is_best:
             if i == 14:
-                model.optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.975)
+                model.optimizer = optim.SGD(model.paramlist, lr=0.001, momentum=0.975)
         if i % 7 == 0:
             model.optimizer.param_groups[0]['lr'] *= 0.2
 
@@ -450,6 +487,7 @@ if __name__ == "__main__":
     parser.add_argument("-batch_size", dest="batch_size", default="64",type=int, help="Batch Size")
     parser.add_argument("-validate", dest="validate_percentage", default="10",type=int, help="Validate Percentage")
     parser.add_argument("--model", dest="model",help="The Model to run (between A to G), add ml after for middle linear")
+    parser.add_argument("--wd", dest="wd",type=float,default=0,help="weight decay regulariztion parameter")
     parser.add_argument("--filename", dest="filename",help="filename for logging and output purposes")
 
     args = parser.parse_args()
